@@ -2,27 +2,48 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>ESP32 Scanner Web</title>
+  <title>ESP32 Barcode Scanner</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body style="text-align:center; font-family:Arial;">
   <h2>📷 ESP32 Barcode Scanner</h2>
   <div id="reader" style="width:300px; margin:auto;"></div>
+  <p>Place your barcode in front of the camera</p>
 
   <script>
     const ESP32_IP = "192.168.1.xxx"; // عوّض xxx بالـ IP متاع ESP32
 
-    function onScanSuccess(decodedText) {
+    function onScanSuccess(decodedText, decodedResult) {
+      // بعث الكود للـ ESP32
       fetch(`http://${ESP32_IP}/send?code=${decodedText}`)
         .then(response => console.log("Sent:", decodedText))
         .catch(err => console.error(err));
     }
 
-    let html5QrcodeScanner = new Html5QrcodeScanner(
+    function onScanFailure(error) {
+      // optional: console log errors
+      // console.warn(`Scan failed: ${error}`);
+    }
+
+    // خيارات Barcode فقط
+    const html5QrcodeScanner = new Html5QrcodeScanner(
       "reader",
-      { fps: 10, qrbox: 250 }
+      {
+        fps: 10,
+        qrbox: 0, // 0 يعني كامل الكاميرا
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E
+        ]
+      },
+      false
     );
-    html5QrcodeScanner.render(onScanSuccess);
+
+    // يسكاني Continuous بدون توقف
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
   </script>
 </body>
 </html>
