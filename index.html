@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ESP32 Scanner Web</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body style="text-align:center; font-family:Arial;">
+  <h2>📷 ESP32 Barcode Scanner</h2>
+  <div id="reader" style="width:300px; margin:auto;"></div>
+
+  <script>
+    const ESP32_IP = "192.168.1.xxx"; // عوّض xxx بالـ IP متاع ESP32
+
+    function onScanSuccess(decodedText) {
+      fetch(`http://${ESP32_IP}/send?code=${decodedText}`)
+        .then(response => console.log("Sent:", decodedText))
+        .catch(err => console.error(err));
+    }
+
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader",
+      { fps: 10, qrbox: 250 }
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
+</body>
+</html>
